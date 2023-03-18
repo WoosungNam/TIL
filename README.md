@@ -1,7 +1,7 @@
 # 🔥TIL
 + **Today I Learned**
 
-## 목표
+## 규칙
 1일 1회씩 공부한 내용을 md 파일로 작성
 + 파일 양식 20xx-xx-xx.md
 
