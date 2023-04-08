@@ -1,0 +1,63 @@
+# Dynamic Programming
+## Shortest path
+``` python
+#무한대 값 정의
+inf = 10000
+#가중치 행렬 선언
+W = [[0, 1, 2, 1, 5],
+     [9, 0, 3, inf, inf],
+     [inf, inf, 0, 4, inf],
+     [inf, inf, 2, 0, 3],
+     [3, inf, inf, inf, 0]]
+#matrix 출력 함수
+def printMarix(d):
+    m = len(d)
+    n = len(d[0])
+
+    for i in range(0, m):
+        for j in range(0, n):
+            print(f'{d[i][j]: 4d}', end = " ")
+        print()
+#최단경로 및 중간 경로를 구하는 함수
+def allShortestPath(W, n):
+    P = [[0 for j in range(0, n)] for i in range(0, n)]
+    D = W
+    for k in range(0, n):
+        for i in range(0, n):
+            for j in range(0, n):
+                if(D[i][k] + D[k][j] < D[i][j]):
+                    P[i][j] = k + 1
+                    D[i][j] = D[i][k] + D[k][j]
+
+    return D, P
+
+D, P = allShortestPath(W, len(W))
+
+#경로 출력 함수 구현
+def path(q, r):
+    if(P[q - 1][r - 1] != 0):
+        path(q, P[q - 1][r - 1])
+        print(f"-> V{P[q - 1][r - 1]}", end = '')
+        path(P[q - 1][r - 1], r)
+```
+### 최단 경로 함수 동작
+
+D matrix를 update해가며 최단 경로 계산
+
+index K의 의미는 중간노드로 K번 째 노드까지 활용한다는 의미, 즉 k = 0, ... , k-1까지 증가하며 D matrix를 update하므로 중간노드로 아무것도 활용하지 않는 경우 부터
+1번 노드를 활용, 2번 노드 까지 활용, ..., n번 노드까지 모두 활용한는 경우로 계산
+
+D(k)[i][j] = min(D(k-1)[i][j], D(k-1)[i][k] + D(k-1)[k][j])로 계산, 즉 K번째 노드까지 활용한 최단 경로는, K번째 노드를 활용하지 않는 경우와 활용하는 경우 중 더 작은 값을 선택
+
+- K에 따른 D의 행렬을 계속 만들어가지 않고, D 행렬 하나에 update 해나가며 진행할 수 있는 이유
+(i, j)를 계산할 때, (i, k), (k, j)가 필요 여기서 D(k) 계산 시 (i, k), (k, j)의 값의 변화가 이뤄지지 않기 때문에 D에 덮어쓰면서 계산 가능
+
+즉 D의 각 i, j의 data를 update할 때는 (i, j), (i, k), (k, j) 값이 사용됨 => k행과 k열의 변화가 없다는 보장이 있다면 D배열을 하나만 만들고 overwrite하며 진행 가능
+
+D(k-1)[i][j]과 D(k)[i][j]의 의미를 생각해보면, 전자는 i에서 j까지 가는데 1부터 k-1 노드를 사용하는 경우, 후자는 i에서 j까지 가는데 1부터 k 노드를 사용하는 경우, 의미를 해석하면 D(k-1)[i][j] = D(k)[i][j]임이 보장됨
+
+
+### 경로 출력 함수
+만약 k를 거치는 것이 최단경로가 되는 경우 p[i][j]에 k값을 저장 => 즉 D[i][j]로 가는 경우 중간지점이 있는 경우, 중간 지점 중 가장 큰 index를 P[i][j]에 저장
+
+그렇게 저장된 P값을 재귀함수로 호출, 만약 p[i][j]값이 존재한다면 중간 값이 있다는 의미 -> 재귀함수로 index를 넘겨줘 계속 탐색 => q에서 r로 가는데 활용한 중간 노드를 순서대로 출력하게 됨
